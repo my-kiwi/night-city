@@ -1,7 +1,5 @@
-# hello world seed
-## Gitgub pages setup
-- go to **Settings** > **pages** > **Build and deployment** > **source**, select "Github Actions" instead of "Deploy from branch"
-- push a commit to main to deploy on https://my-kiwi.github.io/REPO_NAME
+# Night city
+## 2D side-scrolling shoot ’em up
 
 ## Project setup
 after cloning, run
