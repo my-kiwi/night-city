@@ -9,7 +9,7 @@ interface Position {
   y: number;
 }
 
-const SPEED = 20;
+const SPEED = 15;
 
 const image = assets.taxiImg;
 
