@@ -69,6 +69,19 @@ const getNextPosition = (currentPos: Position, speed: number): Position => {
 
     nextPosX += Math.cos(angleToClick) * speed;
     nextPosY += Math.sin(angleToClick) * speed;
+
+    if (nextPosX < 0) {
+      nextPosX = 0;
+    }
+    if (nextPosX > canvas.width) {
+      nextPosX = canvas.width;
+    }
+    if (nextPosY < 0) {
+      nextPosY = 0;
+    }
+    if (nextPosY > canvas.height) {
+      nextPosY = canvas.height;
+    }
   }
 
   return { x: nextPosX, y: nextPosY };
