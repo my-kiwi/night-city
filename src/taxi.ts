@@ -30,6 +30,7 @@ const updateTaxiPosition = (deltaTime: number) => {
     { x: state.hero.x, y: state.hero.y },
     SPEED * deltaTime * Units.value // decouple speed from refresh rate
   );
+
   state.hero.x = nextPosX;
   state.hero.y = nextPosY;
 };
@@ -58,6 +59,11 @@ const getNextPosition = (currentPos: Position, speed: number): Position => {
     const rect = canvas.getBoundingClientRect();
     const x = (controls.pointer.x - rect.left) * (canvas.clientWidth / rect.width);
     const y = (controls.pointer.y - rect.top) * (canvas.clientHeight / rect.height);
+
+    // do not move if close enough to avoid jittering
+    if (Math.hypot(x - nextPosX, y - nextPosY) < speed) {
+      return { x, y };
+    }
 
     const angleToClick = Math.atan2(y - nextPosY, x - nextPosX);
 

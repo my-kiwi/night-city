@@ -7,6 +7,7 @@ export const Units = {
 const updateUnits = () => {
   Units.value = Math.min(canvas.width, canvas.height) / 20;
 };
+
 window.addEventListener('resize', updateUnits);
 window.addEventListener('orientationchange', updateUnits);
 document.addEventListener('DOMContentLoaded', updateUnits);
