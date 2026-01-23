@@ -1,24 +1,10 @@
-import { ctx, canvas } from './canvas';
-import { assets } from './assets';
+import { ctx } from './canvas';
+import { Units } from './units';
 
-const { taxiImg } = assets;
-
-// proportionally scaled to canvas size
-let UNIT: number;
-
-const updateUnits = () => {
-  UNIT = Math.min(canvas.width, canvas.height) / 20;
-};
-window.addEventListener('resize', updateUnits);
-window.addEventListener('orientationchange', updateUnits);
-document.addEventListener('DOMContentLoaded', updateUnits);
-
-export const drawTaxi = () => {
-  const maxSize = UNIT * 6;
-  const scale = Math.min(maxSize / taxiImg.naturalWidth, maxSize / taxiImg.naturalHeight);
-  const scaledWidth = taxiImg.naturalWidth * scale;
-  const scaledHeight = taxiImg.naturalHeight * scale;
-  const posX = UNIT * 7 + (maxSize - scaledWidth) / 2;
-  const posY = UNIT * 12 + (maxSize - scaledHeight) / 2;
-  ctx.drawImage(taxiImg, posX, posY, scaledWidth, scaledHeight);
+export const drawImage = (image: HTMLImageElement, posX: number, posY: number) => {
+  const maxSize = Units.value * 6;
+  const scale = Math.min(maxSize / image.naturalWidth, maxSize / image.naturalHeight);
+  const scaledWidth = image.naturalWidth * scale;
+  const scaledHeight = image.naturalHeight * scale;
+  ctx.drawImage(image, posX - scaledWidth / 2, posY - scaledHeight / 2, scaledWidth, scaledHeight);
 };
