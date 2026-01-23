@@ -13,7 +13,7 @@ const SPEED = 15;
 
 const image = assets.taxiImg;
 
-export const state = {
+const state = {
   hero: {
     x: 100,
     y: 100,

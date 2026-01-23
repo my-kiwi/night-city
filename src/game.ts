@@ -1,4 +1,5 @@
 import { clearCanvas } from './canvas';
+import { drawEnemies } from './enemies';
 import { drawTaxi } from './taxi';
 
 let lastTime = performance.now();
@@ -12,6 +13,7 @@ export const startGame = () => {
     lastTime = currentTime;
 
     drawTaxi(deltaTime);
+    drawEnemies();
 
     requestAnimationFrame(gameLoop);
   };
