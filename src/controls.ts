@@ -1,7 +1,6 @@
 export const controls = {
   posX: 0,
   posY: 0,
-  speed: 0,
   pointer: { x: 0, y: 0, isDown: false },
   keysPressed: {
     ArrowUp: false,
@@ -9,20 +8,6 @@ export const controls = {
     ArrowLeft: false,
     ArrowRight: false,
   },
-};
-
-const updateSpeed = () => {
-  controls.speed = Math.max(2, Math.min(window.innerWidth, window.innerHeight) / 200);
-};
-window.addEventListener('resize', updateSpeed);
-window.addEventListener('orientationchange', updateSpeed);
-document.addEventListener('DOMContentLoaded', updateSpeed);
-
-export const updateControls = (targetPos: { x: number; y: number }) => {
-  const deltaX = targetPos.x - controls.posX;
-  const deltaY = targetPos.y - controls.posY;
-  controls.posX += deltaX * controls.speed;
-  controls.posY += deltaY * controls.speed;
 };
 
 window.addEventListener(
