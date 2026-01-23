@@ -1,6 +1,6 @@
-import { App } from './App';
+import { loadAssets } from './assets';
+import { startGame } from './game';
 
-const appDiv = document.getElementById('app');
-if (appDiv) {
-  appDiv.innerHTML = App();
-}
+document.addEventListener('DOMContentLoaded', () => {
+  loadAssets().then(startGame).catch(console.error);
+});
