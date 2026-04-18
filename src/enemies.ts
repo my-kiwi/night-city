@@ -90,7 +90,7 @@ const updateEnemy = (enemy: Enemy, deltaTime: number) => {
 };
 
 const getEnemyY = (enemy: Enemy) =>
-  enemy.baseY + Math.sin((enemy.x / WAVE_PERIOD) + enemy.phase) * WAVE_AMPLITUDE;
+  enemy.baseY + Math.sin(enemy.x / WAVE_PERIOD + enemy.phase) * WAVE_AMPLITUDE;
 
 const updateBullet = (bullet: Bullet, deltaTime: number) => {
   bullet.x += bullet.speed * deltaTime * Units.value;
@@ -111,7 +111,9 @@ const checkBulletCollision = (bullet: Bullet, enemy: Enemy) => {
 
 const cleanupEntities = () => {
   state.enemies = state.enemies.filter((enemy) => enemy.alive && enemy.x > -ENEMY_SPAWN_PADDING);
-  state.bullets = state.bullets.filter((bullet) => bullet.alive && bullet.x < canvas.width + ENEMY_SPAWN_PADDING);
+  state.bullets = state.bullets.filter(
+    (bullet) => bullet.alive && bullet.x < canvas.width + ENEMY_SPAWN_PADDING
+  );
 };
 
 const drawBullet = (bullet: Bullet) => {
