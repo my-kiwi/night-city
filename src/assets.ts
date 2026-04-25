@@ -25,7 +25,17 @@ export const initVideoBackground = (src: string) => {
     });
   };
 
+  const resumePlayback = () => {
+    if (document.visibilityState === 'visible' && video.paused) {
+      video.play().catch(() => {
+        // ignore autoplay restrictions or resume failures
+      });
+    }
+  };
+
   video.addEventListener('canplay', startPlayback, { once: true });
+  document.addEventListener('visibilitychange', resumePlayback);
+  window.addEventListener('focus', resumePlayback);
   video.addEventListener('error', () => {
     console.warn('Error loading video:', src);
   });
