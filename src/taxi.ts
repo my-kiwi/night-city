@@ -25,6 +25,11 @@ export const getHeroPosition = () => ({
   y: state.hero.y,
 });
 
+export const resetTaxiPosition = () => {
+  state.hero.x = 100;
+  state.hero.y = 100;
+};
+
 export const drawTaxi = (deltaTime: number) => {
   updateTaxiPosition(deltaTime);
   drawImage(image, state.hero.x, state.hero.y);

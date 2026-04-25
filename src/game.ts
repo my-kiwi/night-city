@@ -1,6 +1,6 @@
 import { clearCanvas, ctx } from './canvas';
 import { drawEnemies, resetEnemies } from './enemies';
-import { drawTaxi } from './taxi';
+import { drawTaxi, resetTaxiPosition } from './taxi';
 
 let lastTime = performance.now();
 let gameOver = false;
@@ -32,6 +32,7 @@ const resetGame = () => {
   gameOver = false;
   lastTime = performance.now();
   resetEnemies();
+  resetTaxiPosition();
   hideGameOverContainer();
 };
 
