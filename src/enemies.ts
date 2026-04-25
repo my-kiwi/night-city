@@ -67,7 +67,7 @@ const getEnemyScale = () => {
 };
 
 const getEnemyWidth = () => ennemiesSpriteWidth * getEnemyScale();
-const getEnemyHeight = () => image.naturalHeight * getEnemyScale() /2.5;
+const getEnemyHeight = () => (image.naturalHeight * getEnemyScale()) / 2.5;
 const getEnemyRadius = () => Math.max(Units.value * 1.5, 16);
 const getEnemyBounds = (enemy: Enemy) => {
   const width = getEnemyWidth();
