@@ -1,19 +1,16 @@
-import { clearCanvas, ctx } from './canvas';
+import { clearCanvas } from './canvas';
 import { drawEnemies, resetEnemies } from './enemies';
 import { drawTaxi, resetTaxiPosition } from './taxi';
 
 let lastTime = performance.now();
 let gameOver = false;
 let points = 0;
+let scoreElement: HTMLElement | null = null;
 
-const drawPoints = () => {
-  ctx.save();
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 24px sans-serif';
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'top';
-  ctx.fillText(`Points: ${points}`, 10, 10);
-  ctx.restore();
+const updateScore = () => {
+  if (scoreElement) {
+    scoreElement.textContent = `Points: ${points}`;
+  }
 };
 
 const showGameOverContainer = () => {
@@ -27,20 +24,20 @@ const hideGameOverContainer = () => {
 };
 
 const resetGame = () => {
-  console.log('Resetting game...');
   points = 0;
   gameOver = false;
   lastTime = performance.now();
   resetEnemies();
   resetTaxiPosition();
   hideGameOverContainer();
+  updateScore();
 };
 
 export const startGame = () => {
-  console.log('Starting game...');
+  scoreElement = document.getElementById('score');
+  updateScore();
 
   const replayButton = document.getElementById('replay-button');
-  console.log('Replay button:', replayButton);
   replayButton?.addEventListener('pointerdown', resetGame);
 
   const gameLoop = (currentTime: number): void => {
@@ -51,11 +48,11 @@ export const startGame = () => {
     if (!gameOver) {
       drawTaxi(deltaTime);
       gameOver = drawEnemies(deltaTime, (pts: number) => (points += pts));
-      drawPoints();
+      updateScore();
     } else {
       drawTaxi(0);
       drawEnemies(0, (_pts: number) => {});
-      drawPoints();
+      updateScore();
       showGameOverContainer();
     }
 

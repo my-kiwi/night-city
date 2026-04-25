@@ -64,6 +64,17 @@ main {
   display: block;
 }
 
+#score {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1;
+  color: #ffffff;
+  font: bold 1.1rem sans-serif;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+}
+
 #game-over-container {
   position: absolute;
   inset: 0;
