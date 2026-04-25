@@ -111,27 +111,21 @@ const getNextPosition = (currentPos: Position, speed: number): Position => {
 
     // do not move if close enough to avoid jittering
     if (Math.hypot(x - nextPosX, y - nextPosY) < speed) {
-      return { x, y };
-    }
-
-    const angleToClick = Math.atan2(y - nextPosY, x - nextPosX);
-
-    nextPosX += Math.cos(angleToClick) * speed;
-    nextPosY += Math.sin(angleToClick) * speed;
-
-    if (nextPosX < 0) {
-      nextPosX = 0;
-    }
-    if (nextPosX > canvas.width) {
-      nextPosX = canvas.width;
-    }
-    if (nextPosY < 0) {
-      nextPosY = 0;
-    }
-    if (nextPosY > canvas.height) {
-      nextPosY = canvas.height;
+      nextPosX = x;
+      nextPosY = y;
+    } else {
+      const angleToClick = Math.atan2(y - nextPosY, x - nextPosX);
+      nextPosX += Math.cos(angleToClick) * speed;
+      nextPosY += Math.sin(angleToClick) * speed;
     }
   }
+
+  const scale = getHeroScale();
+  const halfWidth = (image.naturalWidth * scale) / 2;
+  const halfHeight = (image.naturalHeight * scale) / 2;
+
+  nextPosX = Math.min(Math.max(nextPosX, halfWidth), canvas.width - halfWidth);
+  nextPosY = Math.min(Math.max(nextPosY, halfHeight), canvas.height - halfHeight);
 
   return { x: nextPosX, y: nextPosY };
 };
