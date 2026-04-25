@@ -1,6 +1,6 @@
 import { assets } from './assets';
 import { drawImage } from './drawing';
-import { getHeroPosition } from './taxi';
+import { getHeroBounds, getHeroPosition, getHeroRadius } from './taxi';
 import { canvas, ctx } from './canvas';
 import { Units } from './units';
 
@@ -61,12 +61,49 @@ const initialState = () => ({
 
 const state = initialState();
 
-const getEnemyRadius = () => Math.max(Units.value * 2.5, 16);
-const getHeroRadius = () => Math.max(Units.value * 3, 18);
+const getEnemyScale = () => {
+  const maxSize = Units.value * 6;
+  return Math.min(maxSize / ennemiesSpriteWidth, maxSize / image.naturalHeight);
+};
+
+const getEnemyWidth = () => ennemiesSpriteWidth * getEnemyScale();
+const getEnemyHeight = () => image.naturalHeight * getEnemyScale() /2.5;
+const getEnemyRadius = () => Math.max(Units.value * 1.5, 16);
+const getEnemyBounds = (enemy: Enemy) => {
+  const width = getEnemyWidth();
+  const height = getEnemyHeight();
+  const enemyY = getEnemyY(enemy);
+
+  return {
+    left: enemy.x - width / 2,
+    right: enemy.x + width / 2,
+    top: enemyY - height / 2,
+    bottom: enemyY + height / 2,
+  };
+};
+
 const getBulletRadius = () => BULLET_RADIUS;
 const getCrystalRadius = (time = performance.now() / 1000) => {
   const pulse = Math.sin(time * Math.PI * 2 * CRYSTAL_PULSE_RATE);
   return CRYSTAL_RADIUS * (1 + pulse * CRYSTAL_PULSE_SCALE);
+};
+
+const drawEnemyHitbox = (enemy: Enemy) => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!urlParams.has('debug')) {
+    return;
+  }
+  const bounds = getEnemyBounds(enemy);
+  const width = bounds.right - bounds.left;
+  const height = bounds.bottom - bounds.top;
+
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255, 204, 0, 0.85)';
+  ctx.fillStyle = 'rgba(255, 204, 0, 0.12)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(bounds.left, bounds.top, width, height);
+  ctx.fillRect(bounds.left, bounds.top, width, height);
+  ctx.restore();
 };
 
 const spawnEnemy = (index: number): Enemy => {
@@ -131,10 +168,15 @@ const updateCrystal = (crystal: Crystal, deltaTime: number) => {
 };
 
 const checkHeroCollision = (enemy: Enemy) => {
-  const hero = getHeroPosition();
-  const enemyY = getEnemyY(enemy);
-  const distance = Math.hypot(enemy.x - hero.x, enemyY - hero.y);
-  return distance < getHeroRadius() + getEnemyRadius();
+  const heroBounds = getHeroBounds();
+  const enemyBounds = getEnemyBounds(enemy);
+
+  return (
+    heroBounds.left < enemyBounds.right &&
+    heroBounds.right > enemyBounds.left &&
+    heroBounds.top < enemyBounds.bottom &&
+    heroBounds.bottom > enemyBounds.top
+  );
 };
 
 const checkBulletCollision = (bullet: Bullet, enemy: Enemy) => {
@@ -266,6 +308,7 @@ export const drawEnemies = (deltaTime: number, onPointsGained: (points: number) 
       return;
     }
 
+    drawEnemyHitbox(enemy);
     drawImage(image, enemy.x, getEnemyY(enemy), 0, ennemiesSpriteWidth);
   });
 

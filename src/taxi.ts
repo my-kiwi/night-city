@@ -1,5 +1,5 @@
 import { controls } from './controls';
-import { canvas } from './canvas';
+import { canvas, ctx } from './canvas';
 import { drawImage } from './drawing';
 import { assets } from './assets';
 import { Units } from './units';
@@ -25,6 +25,26 @@ export const getHeroPosition = () => ({
   y: state.hero.y,
 });
 
+export const getHeroRadius = () => Math.max(Units.value * 2, 18);
+
+const getHeroScale = () => {
+  const maxSize = Units.value * 6;
+  return Math.min(maxSize / image.naturalWidth, maxSize / image.naturalHeight);
+};
+
+export const getHeroBounds = () => {
+  const scale = getHeroScale();
+  const width = image.naturalWidth * scale;
+  const height = image.naturalHeight * scale;
+
+  return {
+    left: state.hero.x - width / 2,
+    right: state.hero.x + width / 2,
+    top: state.hero.y - height / 2,
+    bottom: state.hero.y + height / 2,
+  };
+};
+
 export const resetTaxiPosition = () => {
   state.hero.x = 100;
   state.hero.y = 100;
@@ -33,6 +53,25 @@ export const resetTaxiPosition = () => {
 export const drawTaxi = (deltaTime: number) => {
   updateTaxiPosition(deltaTime);
   drawImage(image, state.hero.x, state.hero.y);
+  drawTaxiHitbox();
+};
+
+const drawTaxiHitbox = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (!urlParams.has('debug')) {
+    return;
+  }
+  const bounds = getHeroBounds();
+  const width = bounds.right - bounds.left;
+  const height = bounds.bottom - bounds.top;
+
+  ctx.save();
+  ctx.strokeStyle = '#ff69b4';
+  ctx.fillStyle = 'rgba(255, 105, 180, 0.12)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(bounds.left, bounds.top, width, height);
+  ctx.fillRect(bounds.left, bounds.top, width, height);
+  ctx.restore();
 };
 
 const updateTaxiPosition = (deltaTime: number) => {
