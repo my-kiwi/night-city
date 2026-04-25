@@ -1,4 +1,4 @@
-import { canvas, clearCanvas, ctx } from './canvas';
+import { clearCanvas, ctx } from './canvas';
 import { drawEnemies, resetEnemies } from './enemies';
 import { drawTaxi } from './taxi';
 
@@ -16,28 +16,14 @@ const drawPoints = () => {
   ctx.restore();
 };
 
-const drawGameOver = () => {
-  ctx.save();
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.fillStyle = '#ff5c5c';
-  ctx.font = 'bold 48px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
-
-  ctx.restore();
+const showGameOverContainer = () => {
+  const gameOverContainer = document.getElementById('game-over-container');
+  gameOverContainer?.classList.remove('hidden');
 };
 
-const showReplayButton = () => {
-  const replayButton = document.getElementById('replay-button');
-  replayButton?.classList.remove('hidden');
-};
-
-const hideReplayButton = () => {
-  const replayButton = document.getElementById('replay-button');
-  replayButton?.classList.add('hidden');
+const hideGameOverContainer = () => {
+  const gameOverContainer = document.getElementById('game-over-container');
+  gameOverContainer?.classList.add('hidden');
 };
 
 const resetGame = () => {
@@ -46,7 +32,7 @@ const resetGame = () => {
   gameOver = false;
   lastTime = performance.now();
   resetEnemies();
-  hideReplayButton();
+  hideGameOverContainer();
 };
 
 export const startGame = () => {
@@ -69,8 +55,7 @@ export const startGame = () => {
       drawTaxi(0);
       drawEnemies(0, (_pts: number) => {});
       drawPoints();
-      drawGameOver();
-      showReplayButton();
+      showGameOverContainer();
     }
 
     requestAnimationFrame(gameLoop);
