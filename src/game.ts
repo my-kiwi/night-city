@@ -4,13 +4,46 @@ import { drawTaxi, resetTaxiPosition } from './taxi';
 
 let lastTime = performance.now();
 let gameOver = false;
+let hasHandledGameOver = false;
 let points = 0;
+let bestScore = 0;
+let deaths = 0;
 let scoreElement: HTMLElement | null = null;
+let bestScoreElement: HTMLElement | null = null;
+let deathsElement: HTMLElement | null = null;
 
 const updateScore = () => {
   if (scoreElement) {
     scoreElement.textContent = `Points: ${points}`;
   }
+};
+
+const updateBestScore = () => {
+  if (bestScoreElement) {
+    bestScoreElement.textContent = `Best: ${bestScore}`;
+  }
+};
+
+const updateDeaths = () => {
+  if (deathsElement) {
+    deathsElement.textContent = `Deaths: ${deaths}`;
+  }
+};
+
+const loadFromLocalStorage = () => {
+  const storedBestScore = localStorage.getItem('nightCityBestScore');
+  const storedDeaths = localStorage.getItem('nightCityDeaths');
+  if (storedBestScore) {
+    bestScore = parseInt(storedBestScore, 10);
+  }
+  if (storedDeaths) {
+    deaths = parseInt(storedDeaths, 10);
+  }
+};
+
+const saveToLocalStorage = () => {
+  localStorage.setItem('nightCityBestScore', bestScore.toString());
+  localStorage.setItem('nightCityDeaths', deaths.toString());
 };
 
 const showGameOverContainer = () => {
@@ -26,6 +59,7 @@ const hideGameOverContainer = () => {
 const resetGame = () => {
   points = 0;
   gameOver = false;
+  hasHandledGameOver = false;
   lastTime = performance.now();
   resetEnemies();
   resetTaxiPosition();
@@ -35,7 +69,13 @@ const resetGame = () => {
 
 export const startGame = () => {
   scoreElement = document.getElementById('score');
+  bestScoreElement = document.getElementById('best-score');
+  deathsElement = document.getElementById('deaths');
+
+  loadFromLocalStorage();
   updateScore();
+  updateBestScore();
+  updateDeaths();
 
   const replayButton = document.getElementById('replay-button');
   replayButton?.addEventListener('pointerdown', resetGame);
@@ -49,6 +89,17 @@ export const startGame = () => {
       drawTaxi(deltaTime);
       gameOver = drawEnemies(deltaTime, (pts: number) => (points += pts));
       updateScore();
+      if (gameOver && !hasHandledGameOver) {
+        hasHandledGameOver = true;
+        // Update best score and deaths on game over
+        if (points > bestScore) {
+          bestScore = points;
+          updateBestScore();
+        }
+        deaths++;
+        updateDeaths();
+        saveToLocalStorage();
+      }
     } else {
       drawTaxi(0);
       drawEnemies(0, (_pts: number) => {});

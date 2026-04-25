@@ -64,15 +64,26 @@ main {
   display: block;
 }
 
-#score {
+.score-container {
   position: absolute;
   top: 1rem;
   left: 1rem;
   z-index: 1;
+  pointer-events: none;
+}
+
+.score {
   color: #ffffff;
   font: bold 1.1rem sans-serif;
   text-shadow: 0 0 12px rgba(0, 0, 0, 0.75);
-  pointer-events: none;
+}
+
+.best-score {
+  margin-top: 0.5rem;
+}
+
+.deaths {
+  margin-top: 0.5rem;
 }
 
 #game-over-container {

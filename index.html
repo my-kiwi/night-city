@@ -10,7 +10,11 @@
   <body>
     <video id="video" autoplay muted loop playsinline></video>
     <div class="game-shell">
-      <div id="score" class="score">Points: 0</div>
+      <div class="score-container">
+        <div id="score" class="score">Points: 0</div>
+        <div id="best-score" class="score best-score">Best: 0</div>
+        <div id="deaths" class="score deaths">Deaths: 0</div>
+      </div>
       <canvas id="canvas"></canvas>
       <div id="game-over-container" class="hidden">
         <div id="game-over">GAME OVER</div>
