@@ -43,7 +43,9 @@ const BULLET_FIRE_INTERVAL = 0.28;
 const BULLET_SPEED = 28;
 const CRYSTAL_SPEED = 5;
 const BULLET_RADIUS = 6;
-const CRYSTAL_RADIUS = 8;
+const CRYSTAL_RADIUS = 10;
+const CRYSTAL_PULSE_RATE = 1.7; // pulses per second
+const CRYSTAL_PULSE_SCALE = 0.18;
 
 const state = {
   enemies: [] as Enemy[],
@@ -60,7 +62,10 @@ const state = {
 const getEnemyRadius = () => Math.max(Units.value * 2.5, 16);
 const getHeroRadius = () => Math.max(Units.value * 3, 18);
 const getBulletRadius = () => BULLET_RADIUS;
-const getCrystalRadius = () => CRYSTAL_RADIUS;
+const getCrystalRadius = (time = performance.now() / 1000) => {
+  const pulse = Math.sin(time * Math.PI * 2 * CRYSTAL_PULSE_RATE);
+  return CRYSTAL_RADIUS * (1 + pulse * CRYSTAL_PULSE_SCALE);
+};
 
 const spawnEnemy = (index: number): Enemy => {
   const verticalBandStart = canvas.height * 0.15;
@@ -160,9 +165,16 @@ const drawBullet = (bullet: Bullet) => {
 };
 
 const drawCrystal = (crystal: Crystal) => {
-  const radius = getCrystalRadius();
+  const time = performance.now() / 1000;
+  const radius = getCrystalRadius(time);
+  const glow = 6 + radius * 0.2;
+  const pulse = 0.5 + 0.5 * Math.sin(time * Math.PI * 2 * CRYSTAL_PULSE_RATE);
+  const alpha = 0.65 + pulse * 0.25;
+
   ctx.save();
-  ctx.fillStyle = '#0066ff';
+  ctx.shadowColor = `rgba(0, 170, 255, ${alpha * 0.75})`;
+  ctx.shadowBlur = glow;
+  ctx.fillStyle = `rgba(0, 130, 255, ${alpha})`;
   ctx.beginPath();
   ctx.moveTo(crystal.x, crystal.y - radius);
   ctx.lineTo(crystal.x + radius, crystal.y);
