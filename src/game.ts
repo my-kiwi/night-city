@@ -4,6 +4,17 @@ import { drawTaxi } from './taxi';
 
 let lastTime = performance.now();
 let gameOver = false;
+let points = 0;
+
+const drawPoints = () => {
+  ctx.save();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 24px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText(`Points: ${points}`, 10, 10);
+  ctx.restore();
+};
 
 const drawGameOver = () => {
   ctx.save();
@@ -29,10 +40,12 @@ export const startGame = () => {
 
     if (!gameOver) {
       drawTaxi(deltaTime);
-      gameOver = drawEnemies(deltaTime);
+      gameOver = drawEnemies(deltaTime, (pts: number) => (points += pts));
+      drawPoints();
     } else {
       drawTaxi(0);
-      drawEnemies(0);
+      drawEnemies(0, (_pts: number) => {});
+      drawPoints();
       drawGameOver();
     }
 

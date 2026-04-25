@@ -24,6 +24,14 @@ type Bullet = {
   alive: boolean;
 };
 
+type Crystal = {
+  id: number;
+  x: number;
+  y: number;
+  speed: number;
+  alive: boolean;
+};
+
 const ENEMY_BASE_SPEED = 8;
 const ENEMY_SPEED_VARIANCE = 2;
 const ENEMY_SPAWN_PADDING = 80;
@@ -33,21 +41,26 @@ const WAVE_AMPLITUDE = 40;
 const WAVE_PERIOD = 130;
 const BULLET_FIRE_INTERVAL = 0.28;
 const BULLET_SPEED = 28;
+const CRYSTAL_SPEED = 5;
 const BULLET_RADIUS = 6;
+const CRYSTAL_RADIUS = 8;
 
 const state = {
   enemies: [] as Enemy[],
   bullets: [] as Bullet[],
+  crystals: [] as Crystal[],
   lastWaveAt: performance.now() / 1000,
   lastBulletAt: 0,
   nextEnemyId: 1,
   nextBulletId: 1,
+  nextCrystalId: 1,
   gameOver: false,
 };
 
 const getEnemyRadius = () => Math.max(Units.value * 2.5, 16);
 const getHeroRadius = () => Math.max(Units.value * 3, 18);
 const getBulletRadius = () => BULLET_RADIUS;
+const getCrystalRadius = () => CRYSTAL_RADIUS;
 
 const spawnEnemy = (index: number): Enemy => {
   const verticalBandStart = canvas.height * 0.15;
@@ -85,6 +98,16 @@ const spawnBullet = () => {
   state.lastBulletAt = performance.now() / 1000;
 };
 
+const spawnCrystal = (x: number, y: number) => {
+  state.crystals.push({
+    id: state.nextCrystalId++,
+    x,
+    y,
+    speed: CRYSTAL_SPEED,
+    alive: true,
+  });
+};
+
 const updateEnemy = (enemy: Enemy, deltaTime: number) => {
   enemy.x -= enemy.speed * deltaTime * Units.value;
 };
@@ -94,6 +117,10 @@ const getEnemyY = (enemy: Enemy) =>
 
 const updateBullet = (bullet: Bullet, deltaTime: number) => {
   bullet.x += bullet.speed * deltaTime * Units.value;
+};
+
+const updateCrystal = (crystal: Crystal, deltaTime: number) => {
+  crystal.x -= crystal.speed * deltaTime * Units.value;
 };
 
 const checkHeroCollision = (enemy: Enemy) => {
@@ -109,11 +136,18 @@ const checkBulletCollision = (bullet: Bullet, enemy: Enemy) => {
   return distance < getBulletRadius() + getEnemyRadius();
 };
 
+const checkCrystalCollision = (crystal: Crystal) => {
+  const hero = getHeroPosition();
+  const distance = Math.hypot(crystal.x - hero.x, crystal.y - hero.y);
+  return distance < getHeroRadius() + getCrystalRadius();
+};
+
 const cleanupEntities = () => {
   state.enemies = state.enemies.filter((enemy) => enemy.alive && enemy.x > -ENEMY_SPAWN_PADDING);
   state.bullets = state.bullets.filter(
     (bullet) => bullet.alive && bullet.x < canvas.width + ENEMY_SPAWN_PADDING
   );
+  state.crystals = state.crystals.filter((crystal) => crystal.alive && crystal.x > -CRYSTAL_RADIUS);
 };
 
 const drawBullet = (bullet: Bullet) => {
@@ -125,7 +159,21 @@ const drawBullet = (bullet: Bullet) => {
   ctx.restore();
 };
 
-export const drawEnemies = (deltaTime: number) => {
+const drawCrystal = (crystal: Crystal) => {
+  const radius = getCrystalRadius();
+  ctx.save();
+  ctx.fillStyle = '#0066ff';
+  ctx.beginPath();
+  ctx.moveTo(crystal.x, crystal.y - radius);
+  ctx.lineTo(crystal.x + radius, crystal.y);
+  ctx.lineTo(crystal.x, crystal.y + radius);
+  ctx.lineTo(crystal.x - radius, crystal.y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+};
+
+export const drawEnemies = (deltaTime: number, onPointsGained: (points: number) => void) => {
   const now = performance.now() / 1000;
 
   if (!state.gameOver) {
@@ -143,6 +191,14 @@ export const drawEnemies = (deltaTime: number) => {
       }
 
       updateBullet(bullet, deltaTime);
+    });
+
+    state.crystals.forEach((crystal) => {
+      if (!crystal.alive) {
+        return;
+      }
+
+      updateCrystal(crystal, deltaTime);
     });
 
     state.enemies.forEach((enemy) => {
@@ -171,8 +227,17 @@ export const drawEnemies = (deltaTime: number) => {
         if (checkBulletCollision(bullet, enemy)) {
           bullet.alive = false;
           enemy.alive = false;
+          spawnCrystal(enemy.x, getEnemyY(enemy));
+          onPointsGained(10);
         }
       });
+    });
+
+    state.crystals.forEach((crystal) => {
+      if (crystal.alive && checkCrystalCollision(crystal)) {
+        crystal.alive = false;
+        onPointsGained(20);
+      }
     });
 
     cleanupEntities();
@@ -193,6 +258,12 @@ export const drawEnemies = (deltaTime: number) => {
       }
     });
   }
+
+  state.crystals.forEach((crystal) => {
+    if (crystal.alive) {
+      drawCrystal(crystal);
+    }
+  });
 
   return state.gameOver;
 };
