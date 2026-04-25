@@ -14,10 +14,12 @@ export const loadAssets = async () => {
 export const initVideoBackground = (src: string) => {
   const video = assets.videoBg;
   video.preload = 'metadata';
+  video.defaultPlaybackRate = 2.5;
   video.src = src;
   video.load();
 
   const startPlayback = () => {
+    video.playbackRate = 2.5;
     video.play().catch(() => {
       // autoplay may be prevented until user interaction; ignore silently
     });
