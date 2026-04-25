@@ -29,6 +29,7 @@ export default defineConfig([
       ...js.configs.recommended.rules,
       ...tseslint.configs.recommended.rules,
       'prettier/prettier': 'error', // ✅ Prettier issues are shown as ESLint errors
+      'no-unused-vars': ["error", { "args": "none" }] // ✅ Unused variables are errors, but function arguments are ignored
     },
   },
 ]);
