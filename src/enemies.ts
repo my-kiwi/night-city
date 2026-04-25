@@ -14,6 +14,7 @@ type Enemy = {
   phase: number;
   speed: number;
   alive: boolean;
+  enemyType: number;
 };
 
 type Bullet = {
@@ -118,6 +119,7 @@ const spawnEnemy = (index: number): Enemy => {
     phase: Math.random() * Math.PI * 2,
     speed: ENEMY_BASE_SPEED + Math.random() * ENEMY_SPEED_VARIANCE,
     alive: true,
+    enemyType: Math.floor(Math.random() * 3), // 0, 1, or 2
   };
 };
 
@@ -309,7 +311,13 @@ export const drawEnemies = (deltaTime: number, onPointsGained: (points: number) 
     }
 
     drawEnemyHitbox(enemy);
-    drawImage(image, enemy.x, getEnemyY(enemy), 0, ennemiesSpriteWidth);
+    drawImage(
+      image,
+      enemy.x,
+      getEnemyY(enemy),
+      enemy.enemyType * ennemiesSpriteWidth,
+      ennemiesSpriteWidth
+    );
   });
 
   if (!state.gameOver) {
