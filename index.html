@@ -9,7 +9,10 @@
   </head>
   <body>
     <video id="video" autoplay muted loop playsinline></video>
-    <canvas id="canvas"></canvas>
+    <div class="game-shell">
+      <canvas id="canvas"></canvas>
+      <button id="replay-button" class="hidden">Replay</button>
+    </div>
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

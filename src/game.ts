@@ -1,5 +1,5 @@
 import { canvas, clearCanvas, ctx } from './canvas';
-import { drawEnemies } from './enemies';
+import { drawEnemies, resetEnemies } from './enemies';
 import { drawTaxi } from './taxi';
 
 let lastTime = performance.now();
@@ -30,8 +30,29 @@ const drawGameOver = () => {
   ctx.restore();
 };
 
+const showReplayButton = () => {
+  const replayButton = document.getElementById('replay-button');
+  replayButton?.classList.remove('hidden');
+};
+
+const hideReplayButton = () => {
+  const replayButton = document.getElementById('replay-button');
+  replayButton?.classList.add('hidden');
+};
+
+const resetGame = () => {
+  points = 0;
+  gameOver = false;
+  lastTime = performance.now();
+  resetEnemies();
+  hideReplayButton();
+};
+
 export const startGame = () => {
   console.log('Starting game...');
+
+  const replayButton = document.getElementById('replay-button');
+  replayButton?.addEventListener('click', resetGame);
 
   const gameLoop = (currentTime: number): void => {
     clearCanvas();
@@ -47,6 +68,7 @@ export const startGame = () => {
       drawEnemies(0, (_pts: number) => {});
       drawPoints();
       drawGameOver();
+      showReplayButton();
     }
 
     requestAnimationFrame(gameLoop);

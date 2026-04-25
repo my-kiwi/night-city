@@ -47,7 +47,7 @@ const CRYSTAL_RADIUS = 10;
 const CRYSTAL_PULSE_RATE = 1.7; // pulses per second
 const CRYSTAL_PULSE_SCALE = 0.18;
 
-const state = {
+const initialState = () => ({
   enemies: [] as Enemy[],
   bullets: [] as Bullet[],
   crystals: [] as Crystal[],
@@ -57,7 +57,9 @@ const state = {
   nextBulletId: 1,
   nextCrystalId: 1,
   gameOver: false,
-};
+});
+
+const state = initialState();
 
 const getEnemyRadius = () => Math.max(Units.value * 2.5, 16);
 const getHeroRadius = () => Math.max(Units.value * 3, 18);
@@ -183,6 +185,10 @@ const drawCrystal = (crystal: Crystal) => {
   ctx.closePath();
   ctx.fill();
   ctx.restore();
+};
+
+export const resetEnemies = () => {
+  Object.assign(state, initialState());
 };
 
 export const drawEnemies = (deltaTime: number, onPointsGained: (points: number) => void) => {
