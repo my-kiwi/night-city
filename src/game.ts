@@ -41,6 +41,7 @@ const hideReplayButton = () => {
 };
 
 const resetGame = () => {
+  console.log('Resetting game...');
   points = 0;
   gameOver = false;
   lastTime = performance.now();
@@ -52,7 +53,8 @@ export const startGame = () => {
   console.log('Starting game...');
 
   const replayButton = document.getElementById('replay-button');
-  replayButton?.addEventListener('click', resetGame);
+  console.log('Replay button:', replayButton);
+  replayButton?.addEventListener('pointerdown', resetGame);
 
   const gameLoop = (currentTime: number): void => {
     clearCanvas();
