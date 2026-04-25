@@ -31,6 +31,7 @@ type Crystal = {
   y: number;
   speed: number;
   alive: boolean;
+  type: 'points' | 'invincibility';
 };
 
 const ENEMY_BASE_SPEED = 8;
@@ -144,13 +145,14 @@ const spawnBullet = () => {
   state.lastBulletAt = performance.now() / 1000;
 };
 
-const spawnCrystal = (x: number, y: number) => {
+const spawnCrystal = (x: number, y: number, type: 'points' | 'invincibility' = 'points') => {
   state.crystals.push({
     id: state.nextCrystalId++,
     x,
     y,
     speed: CRYSTAL_SPEED,
     alive: true,
+    type,
   });
 };
 
@@ -217,10 +219,14 @@ const drawCrystal = (crystal: Crystal) => {
   const pulse = 0.5 + 0.5 * Math.sin(time * Math.PI * 2 * CRYSTAL_PULSE_RATE);
   const alpha = 0.65 + pulse * 0.25;
 
+  const isInvincibility = crystal.type === 'invincibility';
+  const color = isInvincibility ? [0, 255, 0] : [0, 130, 255]; // green or blue
+  const shadowColor = isInvincibility ? [0, 255, 0] : [0, 170, 255];
+
   ctx.save();
-  ctx.shadowColor = `rgba(0, 170, 255, ${alpha * 0.75})`;
+  ctx.shadowColor = `rgba(${shadowColor[0]}, ${shadowColor[1]}, ${shadowColor[2]}, ${alpha * 0.75})`;
   ctx.shadowBlur = glow;
-  ctx.fillStyle = `rgba(0, 130, 255, ${alpha})`;
+  ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
   ctx.beginPath();
   ctx.moveTo(crystal.x, crystal.y - radius);
   ctx.lineTo(crystal.x + radius, crystal.y);
@@ -235,7 +241,11 @@ export const resetEnemies = () => {
   Object.assign(state, initialState());
 };
 
-export const drawEnemies = (deltaTime: number, onPointsGained: (points: number) => void) => {
+export const drawEnemies = (
+  deltaTime: number,
+  onCollect: (type: 'enemy' | 'points' | 'invincibility') => void,
+  isInvincible: boolean = false
+) => {
   const now = performance.now() / 1000;
 
   if (!state.gameOver) {
@@ -272,7 +282,9 @@ export const drawEnemies = (deltaTime: number, onPointsGained: (points: number) 
 
       if (checkHeroCollision(enemy)) {
         enemy.alive = false;
-        state.gameOver = true;
+        if (!isInvincible) {
+          state.gameOver = true;
+        }
       }
     });
 
@@ -289,8 +301,9 @@ export const drawEnemies = (deltaTime: number, onPointsGained: (points: number) 
         if (checkBulletCollision(bullet, enemy)) {
           bullet.alive = false;
           enemy.alive = false;
-          spawnCrystal(enemy.x, getEnemyY(enemy));
-          onPointsGained(10);
+          const crystalType = Math.random() < 0.1 ? 'invincibility' : 'points';
+          spawnCrystal(enemy.x, getEnemyY(enemy), crystalType);
+          onCollect('enemy');
         }
       });
     });
@@ -298,7 +311,7 @@ export const drawEnemies = (deltaTime: number, onPointsGained: (points: number) 
     state.crystals.forEach((crystal) => {
       if (crystal.alive && checkCrystalCollision(crystal)) {
         crystal.alive = false;
-        onPointsGained(20);
+        onCollect(crystal.type);
       }
     });
 

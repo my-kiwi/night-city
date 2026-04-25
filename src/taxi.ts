@@ -50,10 +50,32 @@ export const resetTaxiPosition = () => {
   state.hero.y = 100;
 };
 
-export const drawTaxi = (deltaTime: number) => {
+export const drawTaxi = (deltaTime: number, isInvincible: boolean = false) => {
   updateTaxiPosition(deltaTime);
   drawImage(image, state.hero.x, state.hero.y);
+  if (isInvincible) {
+    drawInvincibilityCircle();
+  }
   drawTaxiHitbox();
+};
+
+const drawInvincibilityCircle = () => {
+  const time = performance.now() / 1000;
+  const pulseRate = 1.7; // pulses per second, same as crystals
+  const pulse = 0.5 + 0.5 * Math.sin(time * Math.PI * 2 * pulseRate);
+  const baseRadius = getHeroRadius() * 1.5;
+  const radius = baseRadius * (1 + pulse * 0.1); // slight radius pulse
+  const alpha = 0.7 + pulse * 0.3; // pulsating alpha
+
+  ctx.save();
+  ctx.strokeStyle = `rgba(0, 255, 0, ${alpha})`;
+  ctx.lineWidth = 4; // thicker for brightness
+  ctx.shadowColor = `rgba(0, 255, 0, ${alpha * 0.5})`;
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.arc(state.hero.x, state.hero.y, radius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
 };
 
 const drawTaxiHitbox = () => {

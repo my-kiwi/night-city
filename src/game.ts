@@ -8,9 +8,12 @@ let hasHandledGameOver = false;
 let points = 0;
 let bestScore = 0;
 let deaths = 0;
+let invincibilityEndTime = 0;
 let scoreElement: HTMLElement | null = null;
 let bestScoreElement: HTMLElement | null = null;
 let deathsElement: HTMLElement | null = null;
+
+const isInvincible = () => performance.now() / 1000 < invincibilityEndTime;
 
 const updateScore = () => {
   if (scoreElement) {
@@ -60,6 +63,7 @@ const resetGame = () => {
   points = 0;
   gameOver = false;
   hasHandledGameOver = false;
+  invincibilityEndTime = 0;
   lastTime = performance.now();
   resetEnemies();
   resetTaxiPosition();
@@ -86,8 +90,20 @@ export const startGame = () => {
     lastTime = currentTime;
 
     if (!gameOver) {
-      drawTaxi(deltaTime);
-      gameOver = drawEnemies(deltaTime, (pts: number) => (points += pts));
+      drawTaxi(deltaTime, isInvincible());
+      gameOver = drawEnemies(
+        deltaTime,
+        (type) => {
+          if (type === 'enemy') {
+            points += 10;
+          } else if (type === 'points') {
+            points += 20;
+          } else if (type === 'invincibility') {
+            invincibilityEndTime = performance.now() / 1000 + 10;
+          }
+        },
+        isInvincible()
+      );
       updateScore();
       if (gameOver && !hasHandledGameOver) {
         hasHandledGameOver = true;
@@ -101,8 +117,8 @@ export const startGame = () => {
         saveToLocalStorage();
       }
     } else {
-      drawTaxi(0);
-      drawEnemies(0, (_pts: number) => {});
+      drawTaxi(0, isInvincible());
+      drawEnemies(0, (_type) => {}, isInvincible());
       updateScore();
       showGameOverContainer();
     }
