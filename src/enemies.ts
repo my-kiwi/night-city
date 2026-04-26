@@ -14,7 +14,8 @@ type Enemy = {
   phase: number;
   speed: number;
   alive: boolean;
-  enemyType: number;
+  enemyType: number; // 1, 2, or 3
+  health: number; // type 1: 1, type 2: 2, type 3: 3
 };
 
 type Bullet = {
@@ -61,6 +62,7 @@ const initialState = () => ({
   nextBulletId: 1,
   nextCrystalId: 1,
   gameOver: false,
+  gameStartTime: 0,
 });
 
 const state = initialState();
@@ -110,25 +112,43 @@ const drawEnemyHitbox = (enemy: Enemy) => {
   ctx.restore();
 };
 
-const spawnEnemy = (index: number): Enemy => {
+const spawnEnemy = (index: number, gameElapsedTime: number): Enemy => {
   const verticalBandStart = canvas.height * 0.15;
   const verticalBandHeight = canvas.height * 0.7;
   const y = verticalBandStart + (verticalBandHeight / (ENEMIES_PER_WAVE - 1)) * index;
+
+  // Determine enemy type based on game elapsed time
+  let enemyType = 1; // Default to type 1
+  let health = 1;
+  if (gameElapsedTime >= 50) {
+    // After 50 seconds: all three types can appear
+    enemyType = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3
+  } else if (gameElapsedTime >= 20) {
+    // After 20 seconds: types 1 and 2
+    enemyType = Math.random() < 0.7 ? 1 : 2; // 70% type 1, 30% type 2
+  }
+  // Before 20 seconds: only type 1
+
+  health = enemyType; // Health equals type number
+
+  const baseSpeed = enemyType === 1 ? 8 : enemyType === 2 ? 11 : 14; // Different speeds
+  const speedVariance = 2;
 
   return {
     id: state.nextEnemyId++,
     x: canvas.width + ENEMY_SPAWN_PADDING,
     baseY: y,
     phase: Math.random() * Math.PI * 2,
-    speed: ENEMY_BASE_SPEED + Math.random() * ENEMY_SPEED_VARIANCE,
+    speed: baseSpeed + Math.random() * speedVariance,
     alive: true,
-    enemyType: Math.floor(Math.random() * 3), // 0, 1, or 2
+    enemyType,
+    health,
   };
 };
 
-const createWave = () => {
+const createWave = (gameElapsedTime: number) => {
   for (let i = 0; i < ENEMIES_PER_WAVE; i += 1) {
-    state.enemies.push(spawnEnemy(i));
+    state.enemies.push(spawnEnemy(i, gameElapsedTime));
   }
 
   state.lastWaveAt = performance.now() / 1000;
@@ -179,8 +199,19 @@ const updateEnemy = (enemy: Enemy, deltaTime: number) => {
   enemy.x -= enemy.speed * deltaTime * Units.value;
 };
 
-const getEnemyY = (enemy: Enemy) =>
-  enemy.baseY + Math.sin(enemy.x / WAVE_PERIOD + enemy.phase) * WAVE_AMPLITUDE;
+const getEnemyY = (enemy: Enemy) => {
+  // Different movement patterns for different types
+  if (enemy.enemyType === 1) {
+    // Type 1: gentle sine wave
+    return enemy.baseY + Math.sin(enemy.x / WAVE_PERIOD + enemy.phase) * WAVE_AMPLITUDE;
+  } else if (enemy.enemyType === 2) {
+    // Type 2: sharper, faster oscillation
+    return enemy.baseY + Math.sin(enemy.x / 80 + enemy.phase) * WAVE_AMPLITUDE * 1.5;
+  } else {
+    // Type 3: most aggressive, double frequency oscillation
+    return enemy.baseY + Math.sin(enemy.x / 50 + enemy.phase) * WAVE_AMPLITUDE * 2;
+  }
+};
 
 const updateBullet = (bullet: Bullet, deltaTime: number) => {
   if (bullet.velocityX !== undefined && bullet.velocityY !== undefined) {
@@ -284,9 +315,16 @@ export const drawEnemies = (
   const now = performance.now() / 1000;
   const gunCount = getGunCountFn?.() ?? 1;
 
+  // Initialize game start time on first call
+  if (state.gameStartTime === 0) {
+    state.gameStartTime = now;
+  }
+
+  const gameElapsedTime = now - state.gameStartTime;
+
   if (!state.gameOver) {
     if (now - state.lastWaveAt >= WAVE_INTERVAL || state.enemies.length === 0) {
-      createWave();
+      createWave(gameElapsedTime);
     }
 
     if (now - state.lastBulletAt >= BULLET_FIRE_INTERVAL) {
@@ -336,16 +374,20 @@ export const drawEnemies = (
 
         if (checkBulletCollision(bullet, enemy)) {
           bullet.alive = false;
-          enemy.alive = false;
-          const rand = Math.random();
-          let crystalType: 'points' | 'invincibility' | 'powered' = 'points';
-          if (rand < 0.04) {
-            crystalType = 'powered';
-          } else if (rand < 0.06) {
-            crystalType = 'invincibility';
+          enemy.health--;
+
+          if (enemy.health <= 0) {
+            enemy.alive = false;
+            const rand = Math.random();
+            let crystalType: 'points' | 'invincibility' | 'powered' = 'points';
+            if (rand < 0.04) {
+              crystalType = 'powered';
+            } else if (rand < 0.06) {
+              crystalType = 'invincibility';
+            }
+            spawnCrystal(enemy.x, getEnemyY(enemy), crystalType);
+            onCollect('enemy');
           }
-          spawnCrystal(enemy.x, getEnemyY(enemy), crystalType);
-          onCollect('enemy');
         }
       });
     });
@@ -370,7 +412,7 @@ export const drawEnemies = (
       image,
       enemy.x,
       getEnemyY(enemy),
-      enemy.enemyType * ennemiesSpriteWidth,
+      (enemy.enemyType - 1) * ennemiesSpriteWidth,
       ennemiesSpriteWidth
     );
   });
