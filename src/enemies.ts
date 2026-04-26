@@ -134,52 +134,33 @@ const createWave = () => {
   state.lastWaveAt = performance.now() / 1000;
 };
 
-const spawnBullet = (hasBackupGun: boolean = false) => {
+const spawnBullet = (gunCount: number = 1) => {
   const hero = getHeroPosition();
-  const mainBulletX = hero.x + getHeroRadius() + getBulletRadius();
-  const mainBulletY = hero.y;
+  const radius = getHeroRadius() + getBulletRadius();
+  
+  // Create one bullet for each gun, evenly distributed in a circle
+  for (let i = 0; i < gunCount; i++) {
+    const angle = (i / gunCount) * Math.PI * 2; // Distribute evenly around circle
+    const bulletX = hero.x + Math.cos(angle) * radius;
+    const bulletY = hero.y + Math.sin(angle) * radius;
+    const velocityX = BULLET_SPEED * Math.cos(angle);
+    const velocityY = BULLET_SPEED * Math.sin(angle);
 
-  // Main gun: straight right
-  state.bullets.push({
-    id: state.nextBulletId++,
-    x: mainBulletX,
-    y: mainBulletY,
-    speed: BULLET_SPEED,
-    alive: true,
-  });
-
-  // Backup guns: fire at angles when upgraded
-  if (hasBackupGun) {
-    const angleDown = Math.PI / 6; // 30 degrees down
-    const angleUp = -Math.PI / 6; // 30 degrees up
-
-    // Backup gun firing down-right
     state.bullets.push({
       id: state.nextBulletId++,
-      x: mainBulletX,
-      y: mainBulletY,
+      x: bulletX,
+      y: bulletY,
       speed: BULLET_SPEED,
       alive: true,
-      velocityX: BULLET_SPEED * Math.cos(angleDown),
-      velocityY: BULLET_SPEED * Math.sin(angleDown),
-    });
-
-    // Backup gun firing up-right
-    state.bullets.push({
-      id: state.nextBulletId++,
-      x: mainBulletX,
-      y: mainBulletY,
-      speed: BULLET_SPEED,
-      alive: true,
-      velocityX: BULLET_SPEED * Math.cos(angleUp),
-      velocityY: BULLET_SPEED * Math.sin(angleUp),
+      velocityX,
+      velocityY,
     });
   }
 
   state.lastBulletAt = performance.now() / 1000;
 };
 
-const spawnCrystal = (x: number, y: number, type: 'points' | 'invincibility' = 'points') => {
+const spawnCrystal = (x: number, y: number, type: 'points' | 'invincibility' | 'powered' = 'points') => {
   state.crystals.push({
     id: state.nextCrystalId++,
     x,
@@ -294,10 +275,10 @@ export const drawEnemies = (
   deltaTime: number,
   onCollect: (type: 'enemy' | 'points' | 'invincibility' | 'powered') => void,
   isInvincible: boolean = false,
-  hasBackupGunFn?: () => boolean
+  getGunCountFn?: () => number
 ) => {
   const now = performance.now() / 1000;
-  const hasBackupGun = hasBackupGunFn?.() ?? false;
+  const gunCount = getGunCountFn?.() ?? 1;
 
   if (!state.gameOver) {
     if (now - state.lastWaveAt >= WAVE_INTERVAL || state.enemies.length === 0) {
@@ -305,7 +286,7 @@ export const drawEnemies = (
     }
 
     if (now - state.lastBulletAt >= BULLET_FIRE_INTERVAL) {
-      spawnBullet(hasBackupGun);
+      spawnBullet(gunCount);
     }
 
     state.bullets.forEach((bullet) => {

@@ -3,9 +3,9 @@ import { drawEnemies, resetEnemies } from './enemies';
 import {
   drawTaxi,
   resetTaxiPosition,
-  activateBackupGun,
-  hasBackupGun,
-  resetBackupGun,
+  addGun,
+  getGunCount,
+  resetGuns,
 } from './taxi';
 
 let lastTime = performance.now();
@@ -73,7 +73,7 @@ const resetGame = () => {
   lastTime = performance.now();
   resetEnemies();
   resetTaxiPosition();
-  resetBackupGun();
+  resetGuns();
   hideGameOverContainer();
   updateScore();
 };
@@ -108,11 +108,11 @@ export const startGame = () => {
           } else if (type === 'invincibility') {
             invincibilityEndTime = performance.now() / 1000 + 10;
           } else if (type === 'powered') {
-            activateBackupGun();
+            addGun();
           }
         },
         isInvincible(),
-        hasBackupGun
+        getGunCount
       );
       updateScore();
       if (gameOver && !hasHandledGameOver) {
@@ -128,7 +128,7 @@ export const startGame = () => {
       }
     } else {
       drawTaxi(0, isInvincible());
-      drawEnemies(0, (_type) => {}, isInvincible(), hasBackupGun);
+      drawEnemies(0, (_type) => {}, isInvincible(), getGunCount);
       updateScore();
       showGameOverContainer();
     }
