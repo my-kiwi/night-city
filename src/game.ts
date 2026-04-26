@@ -1,12 +1,6 @@
 import { clearCanvas } from './canvas';
 import { drawEnemies, resetEnemies } from './enemies';
-import {
-  drawTaxi,
-  resetTaxiPosition,
-  addGun,
-  getGunCount,
-  resetGuns,
-} from './taxi';
+import { drawTaxi, resetTaxiPosition, addGun, getGunCount, resetGuns } from './taxi';
 
 let lastTime = performance.now();
 let gameOver = false;

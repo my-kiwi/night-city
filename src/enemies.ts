@@ -137,7 +137,7 @@ const createWave = () => {
 const spawnBullet = (gunCount: number = 1) => {
   const hero = getHeroPosition();
   const radius = getHeroRadius() + getBulletRadius();
-  
+
   // Create one bullet for each gun, evenly distributed in a circle
   for (let i = 0; i < gunCount; i++) {
     const angle = (i / gunCount) * Math.PI * 2; // Distribute evenly around circle
@@ -160,7 +160,11 @@ const spawnBullet = (gunCount: number = 1) => {
   state.lastBulletAt = performance.now() / 1000;
 };
 
-const spawnCrystal = (x: number, y: number, type: 'points' | 'invincibility' | 'powered' = 'points') => {
+const spawnCrystal = (
+  x: number,
+  y: number,
+  type: 'points' | 'invincibility' | 'powered' = 'points'
+) => {
   state.crystals.push({
     id: state.nextCrystalId++,
     x,
