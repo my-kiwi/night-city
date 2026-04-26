@@ -18,6 +18,7 @@ const state = {
     x: 100,
     y: 100,
   },
+  hasBackupGun: false,
 };
 
 export const getHeroPosition = () => ({
@@ -48,6 +49,16 @@ export const getHeroBounds = () => {
 export const resetTaxiPosition = () => {
   state.hero.x = 100;
   state.hero.y = 100;
+};
+
+export const activateBackupGun = () => {
+  state.hasBackupGun = true;
+};
+
+export const hasBackupGun = () => state.hasBackupGun;
+
+export const resetBackupGun = () => {
+  state.hasBackupGun = false;
 };
 
 export const drawTaxi = (deltaTime: number, isInvincible: boolean = false) => {
