@@ -37,8 +37,6 @@ type Crystal = {
   type: 'points' | 'invincibility' | 'powered';
 };
 
-const ENEMY_BASE_SPEED = 8;
-const ENEMY_SPEED_VARIANCE = 2;
 const ENEMY_SPAWN_PADDING = 80;
 const WAVE_INTERVAL = 3.5;
 const ENEMIES_PER_WAVE = 4;
