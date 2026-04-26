@@ -260,7 +260,7 @@ const drawCrystal = (crystal: Crystal) => {
 
   let color: [number, number, number];
   let shadowColor: [number, number, number];
-  
+
   if (crystal.type === 'invincibility') {
     color = [0, 255, 0]; // green
     shadowColor = [0, 255, 0];
