@@ -339,9 +339,9 @@ export const drawEnemies = (
           enemy.alive = false;
           const rand = Math.random();
           let crystalType: 'points' | 'invincibility' | 'powered' = 'points';
-          if (rand < 0.02) {
+          if (rand < 0.04) {
             crystalType = 'powered';
-          } else if (rand < 0.04) {
+          } else if (rand < 0.06) {
             crystalType = 'invincibility';
           }
           spawnCrystal(enemy.x, getEnemyY(enemy), crystalType);
